@@ -32,6 +32,47 @@ app.post('/api/exercise/new-user', (req, res) => {
     });
 });
 
+// {
+// "description": "sss",
+// "duration": 11,
+// "date": "Thu Jan 01 1970"
+// }
+
+app.post('/api/exercise/add', (req, res) => {
+    let { userId, description, duration, date } = req.body;
+    let data = {};
+    if(!userId) {
+        res.end('unknown _id');
+    }
+    User.findById(userId, function (err, user) {
+        if(err) {
+            res.end('Error!');
+        }
+        if(!user) {
+            res.end('unknown _id');
+        }
+        data.id = user._id;
+        data.username = user.username;
+        if(!duration) {
+            res.end('Path `duration` is required.');
+        }
+        if(!Number(duration)) {
+            res.end(`Cast to Number failed for value ${duration} at path "duration"`);
+        }
+        data.duration = Number(duration);
+        if(!description) {
+            res.end('Path `description` is required.');
+        }
+        data.description = description;
+        if(!date || new Date(date) == 'Invalid Date') {
+            res.end('Invalid Date');
+        }
+        date = new Date(date);
+        data.date = date.toDateString();
+        res.json(data);
+    });
+});
+
 // Not found middleware
 app.use((req, res, next) => {
     return next({ status: 404, message: 'not found' });
